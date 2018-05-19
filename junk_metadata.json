@@ -1,0 +1,18 @@
+{
+    "title": "Junk Metadata",
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string",
+            "description": "JUNK",
+        },
+        "description": {
+            "type": "string",
+            "description": "Text description of JUNK.",
+        },
+        "image": {
+            "type": "string",
+            "description": "A URI pointing to an arbitrary JUNK attachement.",
+        }
+    }
+}
