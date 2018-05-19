@@ -1,4 +1,4 @@
-pragma solidity ^0.4.13;
+pragma solidity ^0.4.23;
 
 /*
   A User is the proxy contract for an ethereum account that wants to use the ChainAuthority's
@@ -8,10 +8,11 @@ pragma solidity ^0.4.13;
   They use this account to collect junk in the zones they reached with (not yet implemented) Dynamic Proof-Of-Location.
 */
 
-import "zeppelin-solidity/contracts/ownership/Ownable.sol";
+import "./zeppelin-solidity/contracts/ownership/Ownable.sol";
 
 import "./Producer.sol";
 import "./ChainAuthority.sol";
+import "./CSC.sol";
 
 contract User is Ownable, CSC {
 
@@ -19,7 +20,7 @@ contract User is Ownable, CSC {
     Producer public activeProducer;
     mapping(bytes4 => bool) public reachableZones;
 
-    event CheckIn(address user, address producer);
+    event ZoneReached(address user, bytes4 zone);
 
     modifier callerIsChainAuthority() {
         ChainAuthority authority = ChainAuthority(msg.sender);
@@ -36,8 +37,9 @@ contract User is Ownable, CSC {
     }
 
     // A user is created by a ChainAuthorty.
-    function User() public Ownable {
+    constructor(bytes8 _geohash) public CSC(_geohash) Ownable() {
         chainAuthority = ChainAuthority(msg.sender);
+        geohash = _geohash;
     }
 
     // Set the pending anchor to indicate interest in using a Producer
@@ -47,21 +49,20 @@ contract User is Ownable, CSC {
 
     // Activate producer for consequent interaction, assuming the user has access to their zone.
     function activate(Producer _producer) public payable onlyOwner() {
-        require(chainAuthority.producer(address(_producer)));
+        require(chainAuthority.producers(address(_producer)));
         setActiveProducer(_producer);
-        _producer.acceptCollection.value(msg.value)();
     }
 
-    // The chain authority calls this function to modify the set of availableZones.
+    // The chain authority calls this function to modify the set of reachableZones.
     function addZone(bytes4 _zone) public callerIsChainAuthority() {
-        availableZones[_zone] = true;
-        ZoneReached(_zone);
+        reachableZones[_zone] = true;
+        emit ZoneReached(this, _zone);
     }
 
     // the owner of the User contract can request to the ChainAuthority to add
     // a zone to their set of reachableZones.
     function reachZone(bytes4 _zone) public onlyOwner {
-        chainAuthority.addZone(_zone);
+        chainAuthority.addZone(geohash, _zone);
     }
 
 }

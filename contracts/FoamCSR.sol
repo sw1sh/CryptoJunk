@@ -1,4 +1,4 @@
-pragma solidity ^0.4.13;
+pragma solidity ^0.4.23;
 
 import "./CSR.sol";
 import "./CSC.sol";
@@ -21,7 +21,7 @@ contract FoamCSR is SpatialUtils {
             bytes12 computedCSC = SpatialUtils.computeCSC(geohash, cscAddr);
             require(computedCSC == csc);
             CSCRegistry[csc] = cscAddr;
-            RegisterCSC(msg.sender, csc, cscAddr, geohash);
+            emit RegisterCSC(msg.sender, csc, cscAddr, geohash);
         }
     }
 }

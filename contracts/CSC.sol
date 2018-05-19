@@ -1,4 +1,4 @@
-pragma solidity ^0.4.13;
+pragma solidity ^0.4.23;
 
 import "./SpatialUtils.sol";
 
@@ -15,7 +15,7 @@ contract CSC is SpatialUtils {
     bytes8 public geohash;
     bytes12 public csc;
 
-    function CSC(bytes8 _geohash) public {
+    constructor(bytes8 _geohash) public {
         geohash = _geohash;
         csc = SpatialUtils.computeCSC(geohash, address(this));
     }
